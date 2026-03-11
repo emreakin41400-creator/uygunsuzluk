@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giriş — KA.MA Uygunsuzluk Sistemi</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background: #F4F4F0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-wrap {
+            width: 100%;
+            max-width: 400px;
+            padding: 1.5rem;
+        }
+        .login-logo {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        .logo-img {
+            height: 60px;
+            width: auto;
+            margin-bottom: 12px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .logo-sub {
+            font-size: 12px;
+            color: #6B6B6B;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .login-card {
+            background: white;
+            border: 1px solid #D5D5CF;
+            border-top: 4px solid #C0392B;
+            border-radius: 6px;
+            padding: 32px;
+        }
+        .login-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: #1A1A1A;
+        }
+        .form-group { margin-bottom: 16px; }
+        .form-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #6B6B6B;
+            margin-bottom: 6px;
+        }
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.5px solid #D5D5CF;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+        .form-control:focus { border-color: #C0392B; }
+        .btn-login {
+            width: 100%;
+            padding: 11px;
+            background: #C0392B;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background 0.15s;
+            letter-spacing: 0.5px;
+        }
+        .btn-login:hover { background: #E74C3C; }
+        .error-box {
+            background: #fee2e2;
+            border-left: 4px solid #C0392B;
+            color: #7f1d1d;
+            padding: 10px 14px;
+            border-radius: 0 4px 4px 0;
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+        .login-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 11px;
+            color: #9B9B9B;
+        }
+    </style>
+</head>
+<body>
+<div class="login-wrap">
+    <div class="login-logo">
+        <img src="/static/logo.png" class="logo-img" alt="KA.MA Karabudak Makine">
+        <div class="logo-sub">Uygunsuzluk Yönetim Sistemi</div>
+    </div>
+    <div class="login-card">
+        <div class="login-title">Sisteme Giriş</div>
+        {% if error %}
+        <div class="error-box">⚠️ {{ error }}</div>
+        {% endif %}
+        <form method="POST" action="/giris">
+            <div class="form-group">
+                <label class="form-label">Kullanıcı Adı</label>
+                <input type="text" name="username" class="form-control" placeholder="kullanici_adi" autofocus autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Şifre</label>
+                <input type="password" name="password" class="form-control" placeholder="••••••••" autocomplete="current-password">
+            </div>
+            <button type="submit" class="btn-login">Giriş Yap →</button>
+        </form>
+    </div>
+    <div class="login-footer">KA.MA Karabudak Makine © 2026</div>
+</div>
+</body>
+</html>

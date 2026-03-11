@@ -1,0 +1,18 @@
+[
+  {
+    "id": "99b9133c",
+    "username": "admin",
+    "password": "scrypt:32768:8:1$Y78LKsQihGhqjggy$e508497db4baa6083d7e42851391a57c1e845a21585175e792743bffc1ef183b14b4a286475f3a119d1bd0644de918d91f9bcd4c00d5826c13854e158306729c",
+    "ad_soyad": "Sistem Yöneticisi",
+    "role": "admin",
+    "olusturma": "10.03.2026 10:40"
+  },
+  {
+    "id": "5a57d486",
+    "username": "Deneme",
+    "password": "scrypt:32768:8:1$SjOQa9DHLNzcw8Jk$f9205b9590d81e17527b0d05973dc8dfb859575e60dd3219d7ea46be6c620b7b72a8e9d97076536e078e46ac098b2c0942639254ea5c1ebbb3b576f309b5ee53",
+    "ad_soyad": "Deneme",
+    "role": "user",
+    "olusturma": "10.03.2026 13:35"
+  }
+]

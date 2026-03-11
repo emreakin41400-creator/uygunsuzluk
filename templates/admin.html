@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .page-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:12px; }
+    .page-title { font-size:22px; font-weight:700; }
+    .page-subtitle { font-size:13px; color:var(--text-muted); margin-top:2px; }
+
+    /* FLASH */
+    .flash { padding:10px 16px; border-radius:4px; font-size:13px; margin-bottom:16px; font-weight:500; }
+    .flash-success { background:#d4edda; color:#155724; border-left:4px solid var(--green); }
+    .flash-error   { background:#fee2e2; color:#7f1d1d; border-left:4px solid var(--red); }
+
+    /* KULLANICI TABLOSU */
+    .table-wrap { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; font-size:13px; }
+    th {
+        background:var(--text); color:rgba(255,255,255,0.8);
+        padding:10px 14px; text-align:left;
+        font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px;
+    }
+    td { padding:10px 14px; border-bottom:1px solid var(--border); vertical-align:middle; }
+    tr:hover td { background:#fafaf8; }
+    tr:last-child td { border-bottom:none; }
+
+    .role-badge {
+        display:inline-block; padding:2px 10px; border-radius:3px;
+        font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;
+    }
+    .role-admin { background:#fde8e8; color:var(--red); }
+    .role-user  { background:#e8f4fd; color:#1565c0; }
+
+    /* EKLE FORMU */
+    .add-card {
+        background:var(--surface);
+        border:1px solid var(--border);
+        border-top:3px solid var(--red);
+        border-radius:6px;
+        overflow:hidden;
+        margin-bottom:20px;
+    }
+    .add-header {
+        background:var(--bg);
+        padding:12px 20px;
+        font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px;
+        border-bottom:1px solid var(--border);
+    }
+    .add-body { padding:20px; }
+
+    /* ŞİFRE DEĞİŞTİR */
+    .sifre-form { display:flex; gap:8px; align-items:center; }
+    .sifre-input {
+        padding:5px 10px; border:1.5px solid var(--border); border-radius:4px;
+        font-family:inherit; font-size:12px; width:120px; outline:none;
+    }
+    .sifre-input:focus { border-color:var(--red); }
+</style>
+
+<div class="page-header">
+    <div>
+        <div class="page-title">⚙️ Admin Paneli</div>
+        <div class="page-subtitle">Kullanıcıları buradan yönetebilirsiniz.</div>
+    </div>
+    <a href="/" class="btn btn-secondary">← Ana Sayfa</a>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% for cat, msg in messages %}
+    <div class="flash flash-{{ cat }}">{{ msg }}</div>
+  {% endfor %}
+{% endwith %}
+
+<!-- YENİ KULLANICI EKLE -->
+<div class="add-card">
+    <div class="add-header">➕ Yeni Kullanıcı Ekle</div>
+    <div class="add-body">
+        <form action="/admin/kullanici_ekle" method="POST">
+            <div class="grid-3" style="margin-bottom:12px;">
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label">Ad Soyad</label>
+                    <input type="text" name="ad_soyad" class="form-control" placeholder="Örn: Ahmet Yılmaz" required>
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label">Kullanıcı Adı</label>
+                    <input type="text" name="username" class="form-control" placeholder="Örn: ahmet.yilmaz" required>
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label">Şifre</label>
+                    <input type="text" name="password" class="form-control" placeholder="En az 4 karakter" required>
+                </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+                <div>
+                    <label class="form-label">Rol</label>
+                    <select name="role" class="form-control" style="width:160px;">
+                        <option value="user">Kullanıcı</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div style="margin-top:18px;">
+                    <button type="submit" class="btn btn-primary">Kullanıcı Ekle</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- KULLANICI LİSTESİ -->
+<div class="card">
+    <div class="card-header">👥 Mevcut Kullanıcılar ({{ users|length }})</div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Ad Soyad</th>
+                    <th>Kullanıcı Adı</th>
+                    <th>Rol</th>
+                    <th>Oluşturma</th>
+                    <th>Şifre Değiştir</th>
+                    <th>Sil</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr>
+                    <td style="font-weight:600;">{{ u.ad_soyad }}</td>
+                    <td style="font-family:monospace;font-size:12px;color:var(--text-muted);">{{ u.username }}</td>
+                    <td><span class="role-badge role-{{ u.role }}">{{ 'Admin' if u.role == 'admin' else 'Kullanıcı' }}</span></td>
+                    <td style="font-size:12px;color:var(--text-muted);">{{ u.olusturma }}</td>
+                    <td>
+                        <form action="/admin/sifre_degistir/{{ u.id }}" method="POST" class="sifre-form">
+                            <input type="text" name="yeni_sifre" class="sifre-input" placeholder="Yeni şifre">
+                            <button type="submit" class="btn btn-secondary btn-sm">Güncelle</button>
+                        </form>
+                    </td>
+                    <td>
+                        {% if u.id != session.user.id %}
+                        <form action="/admin/kullanici_sil/{{ u.id }}" method="POST"
+                              onsubmit="return confirm('{{ u.ad_soyad }} silinsin mi?')">
+                            <button class="btn btn-sm" style="background:#fee2e2;color:#dc2626;">Sil</button>
+                        </form>
+                        {% else %}
+                        <span style="font-size:11px;color:var(--text-muted);">— Siz —</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div style="margin-top:16px; padding:12px 16px; background:#fff8e1; border-left:4px solid #f59e0b; border-radius:0 4px 4px 0; font-size:12px; color:#92400e;">
+    💡 <strong>Rol Farkı:</strong> <strong>Admin</strong> tüm kayıtları görebilir, silebilir ve kapatabilir. <strong>Kullanıcı</strong> sadece kendi açtığı kayıtları görebilir ve güncelleyebilir.
+</div>
+{% endblock %}

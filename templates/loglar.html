@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .page-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:10px; }
+    .page-title { font-size:20px; font-weight:700; }
+    .page-sub { font-size:12px; color:var(--text-muted); margin-top:2px; }
+
+    .filter-bar {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius:8px;
+        padding:16px;
+        margin-bottom:18px;
+        display:flex;
+        gap:12px;
+        flex-wrap:wrap;
+        align-items:flex-end;
+    }
+    .filter-group { display:flex; flex-direction:column; gap:4px; flex:1; min-width:140px; }
+    .filter-group label { font-size:11px; font-weight:600; color:var(--text-muted); text-transform:uppercase; }
+    .filter-group select, .filter-group input {
+        padding:8px 10px;
+        border:1px solid var(--border);
+        border-radius:6px;
+        font-size:13px;
+        background:var(--bg);
+        color:var(--text);
+    }
+    .filter-btn { padding:8px 18px; background:var(--red); color:white; border:none; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer; }
+    .filter-reset { padding:8px 14px; background:var(--surface); color:var(--text-muted); border:1px solid var(--border); border-radius:6px; font-size:13px; cursor:pointer; text-decoration:none; }
+
+    .stats-row { display:flex; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
+    .stat-chip {
+        background:var(--surface);
+        border:1px solid var(--border);
+        border-radius:20px;
+        padding:6px 14px;
+        font-size:12px;
+        font-weight:600;
+        color:var(--text-muted);
+    }
+    .stat-chip span { color:var(--text); font-size:14px; }
+
+    .log-table { width:100%; border-collapse:collapse; font-size:13px; }
+    .log-table th {
+        background:var(--surface);
+        border-bottom:2px solid var(--border);
+        padding:10px 12px;
+        text-align:left;
+        font-size:11px;
+        text-transform:uppercase;
+        letter-spacing:0.5px;
+        color:var(--text-muted);
+        white-space:nowrap;
+    }
+    .log-table td {
+        padding:9px 12px;
+        border-bottom:1px solid var(--border);
+        vertical-align:middle;
+    }
+    .log-table tr:hover td { background:var(--bg); }
+
+    .badge-ok   { background:#d4edda; color:#155724; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:600; }
+    .badge-err  { background:#f8d7da; color:#721c24; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:600; }
+    .badge-warn { background:#fff3cd; color:#856404; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:600; }
+
+    .ip-chip { font-family:monospace; font-size:11px; background:var(--bg); border:1px solid var(--border); padding:2px 6px; border-radius:4px; }
+    .islem-text { font-weight:600; }
+    .detay-text { color:var(--text-muted); font-size:12px; }
+    .zaman-text { font-size:11px; color:var(--text-muted); white-space:nowrap; }
+
+    .empty-state { text-align:center; padding:60px 20px; color:var(--text-muted); }
+    .empty-icon { font-size:48px; margin-bottom:12px; }
+
+    @media(max-width:768px) {
+        .log-table { display:block; overflow-x:auto; }
+        .hide-mobile { display:none; }
+    }
+</style>
+
+<div class="page-header">
+    <div>
+        <div class="page-title">📊 Sistem Logları</div>
+        <div class="page-sub">Kullanıcı aktiviteleri ve sistem olayları</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+<a href="/admin" class="filter-reset">← Admin</a>
+    </div>
+</div>
+
+<!-- FİLTRELER -->
+<div class="filter-bar">
+    <div class="filter-group">
+        <label>Kullanıcı</label>
+        <select name="kullanici" id="f_kullanici">
+            <option value="">Tümü</option>
+            {% for k in kullanicilar %}
+            <option value="{{ k }}" {% if filtre_kullanici == k %}selected{% endif %}>{{ k }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="filter-group">
+        <label>İşlem İçerir</label>
+        <input type="text" id="f_islem" value="{{ filtre_islem }}" placeholder="örn: Giriş, Kayıt...">
+    </div>
+    <div class="filter-group">
+        <label>Durum</label>
+        <select name="durum" id="f_durum">
+            <option value="">Tümü</option>
+            <option value="✅" {% if filtre_durum == '✅' %}selected{% endif %}>✅ Başarılı</option>
+            <option value="❌" {% if filtre_durum == '❌' %}selected{% endif %}>❌ Hatalı</option>
+            <option value="⚠️" {% if filtre_durum == '⚠️' %}selected{% endif %}>⚠️ Uyarı</option>
+        </select>
+    </div>
+    <button class="filter-btn" onclick="filtrele()">🔍 Filtrele</button>
+    <a href="/admin/loglar" class="filter-reset">Sıfırla</a>
+</div>
+
+<!-- İSTATİSTİK -->
+<div class="stats-row">
+    <div class="stat-chip">Toplam <span>{{ toplam }}</span> kayıt</div>
+    <div class="stat-chip">✅ Başarılı <span>{{ loglar | selectattr('durum', 'equalto', '✅') | list | length }}</span></div>
+    <div class="stat-chip">❌ Hatalı <span>{{ loglar | selectattr('durum', 'equalto', '❌') | list | length }}</span></div>
+    <div class="stat-chip">⚠️ Uyarı <span>{{ loglar | selectattr('durum', 'equalto', '⚠️') | list | length }}</span></div>
+</div>
+
+{% if loglar %}
+<div style="overflow-x:auto;">
+<table class="log-table">
+    <thead>
+        <tr>
+            <th>Zaman</th>
+            <th>Kullanıcı</th>
+            <th class="hide-mobile">IP Adresi</th>
+            <th>İşlem</th>
+            <th class="hide-mobile">Detay</th>
+            <th>Durum</th>
+            <th class="hide-mobile">Rol</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for log in loglar %}
+        <tr>
+            <td class="zaman-text">{{ log.zaman }}</td>
+            <td>
+                <div style="font-weight:600;font-size:13px;">{{ log.kullanici_adi }}</div>
+                <div style="font-size:11px;color:var(--text-muted);">@{{ log.username }}</div>
+            </td>
+            <td class="hide-mobile"><span class="ip-chip">{{ log.ip }}</span></td>
+            <td class="islem-text">{{ log.islem }}</td>
+            <td class="hide-mobile detay-text">{{ log.detay }}</td>
+            <td>
+                {% if log.durum == '✅' %}
+                <span class="badge-ok">Başarılı</span>
+                {% elif log.durum == '❌' %}
+                <span class="badge-err">Hatalı</span>
+                {% else %}
+                <span class="badge-warn">Uyarı</span>
+                {% endif %}
+            </td>
+            <td class="hide-mobile" style="font-size:12px;color:var(--text-muted);">{{ log.rol }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% else %}
+<div class="empty-state">
+    <div class="empty-icon">📭</div>
+    <div>Henüz log kaydı bulunmuyor.</div>
+</div>
+{% endif %}
+
+<script>
+function filtrele() {
+    const k = document.getElementById('f_kullanici').value;
+    const i = document.getElementById('f_islem').value;
+    const d = document.getElementById('f_durum').value;
+    const params = new URLSearchParams();
+    if(k) params.set('kullanici', k);
+    if(i) params.set('islem', i);
+    if(d) params.set('durum', d);
+    window.location.href = '/admin/loglar?' + params.toString();
+}
+</script>
+{% endblock %}

@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="KA.MA">
+    <meta name="theme-color" content="#C0392B">
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+    <title>KA.MA - Uygunsuzluk Sistemi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --red: #C0392B;
+            --red-dark: #96281B;
+            --red-light: #E74C3C;
+            --bg: #F4F4F0;
+            --surface: #FFFFFF;
+            --surface2: #ECECEC;
+            --border: #D5D5CF;
+            --text: #1A1A1A;
+            --text-muted: #6B6B6B;
+            --green: #1E7E34;
+            --green-light: #d4edda;
+            --orange: #E67E22;
+            --orange-light: #fdebd0;
+            --nav-h: 56px;
+            --bottom-h: 60px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            min-height: 100dvh;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        /* ── TOP NAV (desktop) ── */
+        nav {
+            background: var(--text);
+            padding: 0 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: var(--nav-h);
+            position: sticky;
+            top: 0;
+            z-index: 200;
+            border-bottom: 3px solid var(--red);
+        }
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+        .nav-logo-img {
+            height: 36px;
+            width: auto;
+            
+            display: block;
+        }
+        .nav-divider {
+            width: 1px;
+            height: 28px;
+            background: rgba(255,255,255,0.25);
+        }
+        .nav-title {
+            color: white;
+            font-size: 13px;
+            font-weight: 500;
+            opacity: 0.85;
+            white-space: nowrap;
+        }
+        .nav-links { display: flex; gap: 4px; align-items: center; flex-wrap: nowrap; }
+        .nav-link {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 13px;
+            padding: 6px 12px;
+            border-radius: 4px;
+            transition: all 0.15s;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .nav-link:hover { background: rgba(255,255,255,0.1); color: white; }
+        .btn-nav {
+            background: var(--red);
+            color: white;
+            text-decoration: none;
+            font-size: 13px;
+            padding: 7px 14px;
+            border-radius: 4px;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: background 0.15s;
+        }
+        .btn-nav:hover { background: var(--red-light); }
+        .nav-user {
+            color: rgba(255,255,255,0.5);
+            font-size: 12px;
+            margin-left: 4px;
+            white-space: nowrap;
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ── MAIN ── */
+        main {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 1.5rem 1.5rem 2rem;
+        }
+
+        /* ── BOTTOM NAV (mobile only) ── */
+        .bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: var(--bottom-h);
+            background: var(--text);
+            border-top: 2px solid var(--red);
+            z-index: 200;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        .bottom-nav-inner {
+            display: flex;
+            height: 100%;
+        }
+        .bnav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: rgba(255,255,255,0.55);
+            font-size: 10px;
+            font-weight: 600;
+            gap: 3px;
+            transition: color 0.15s;
+            padding: 6px 4px;
+        }
+        .bnav-item:active, .bnav-item.active { color: white; }
+        .bnav-icon { font-size: 20px; line-height: 1; }
+        .bnav-item.primary {
+            background: var(--red);
+            color: white;
+            border-radius: 0;
+        }
+        .bnav-item.primary:active { background: var(--red-light); }
+
+        /* ── BUTTONS ── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            text-decoration: none;
+            transition: all 0.15s;
+            touch-action: manipulation;
+        }
+        .btn-primary { background: var(--red); color: white; }
+        .btn-primary:active { background: var(--red-light); }
+        .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+        .btn-secondary:active { background: var(--border); }
+        .btn-success { background: var(--green); color: white; }
+        .btn-success:active { background: #155724; }
+        .btn-sm { padding: 6px 12px; font-size: 12px; }
+        .btn-full { width: 100%; justify-content: center; padding: 13px; font-size: 15px; }
+
+        /* ── BADGES ── */
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .badge-acik { background: var(--orange-light); color: var(--orange); }
+        .badge-kapali { background: var(--green-light); color: var(--green); }
+
+        /* ── CARDS ── */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .card-header {
+            background: var(--text);
+            color: white;
+            padding: 12px 16px;
+            font-weight: 700;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-header.red { background: var(--red); }
+        .card-body { padding: 16px; }
+
+        /* ── FORM ── */
+        .form-group { margin-bottom: 14px; }
+        .form-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+        .form-control {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1.5px solid var(--border);
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 16px; /* 16px prevents iOS zoom */
+            background: var(--surface);
+            color: var(--text);
+            transition: border-color 0.15s;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        .form-control:focus { border-color: var(--red); }
+        textarea.form-control { resize: vertical; min-height: 80px; }
+        select.form-control { cursor: pointer; }
+
+        /* ── GRID ── */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+        /* ── SECTION TITLE ── */
+        .section-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            padding: 0 0 8px 0;
+            border-bottom: 2px solid var(--border);
+            margin: 20px 0 14px 0;
+        }
+
+        /* ── FLASH ── */
+        .flash { padding: 10px 16px; border-radius: 6px; font-size: 13px; margin-bottom: 14px; font-weight: 500; }
+        .flash-success { background: #d4edda; color: #155724; border-left: 4px solid var(--green); }
+        .flash-error   { background: #fee2e2; color: #7f1d1d; border-left: 4px solid var(--red); }
+
+        /* ── PWA INSTALL BANNER ── */
+        #install-banner {
+            display: none;
+            position: fixed;
+            bottom: 70px; left: 12px; right: 12px;
+            background: var(--text);
+            color: white;
+            border-radius: 10px;
+            padding: 14px 16px;
+            z-index: 300;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            align-items: center;
+            gap: 12px;
+        }
+        #install-banner.show { display: flex; }
+        .install-text { flex: 1; font-size: 13px; line-height: 1.4; }
+        .install-text strong { display: block; font-size: 14px; margin-bottom: 2px; }
+        .install-btn {
+            background: var(--red);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 14px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .install-close {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.5);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px;
+            line-height: 1;
+        }
+
+        /* ── MOBILE ── */
+        @media (max-width: 640px) {
+            .nav-title { display: none; }
+            .nav-links { display: none; }
+            nav { padding: 0 1rem; }
+            main { padding: 1rem 0.875rem 5rem; }
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+            .bottom-nav { display: block; }
+            .hide-mobile { display: none !important; }
+            .btn { touch-action: manipulation; }
+        }
+        @media (min-width: 641px) {
+            .hide-desktop { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav>
+    <a href="/" class="nav-brand">
+        <img src="/static/logo-white.png" class="nav-logo-img" alt="KA.MA Logo">
+        <div class="nav-divider"></div>
+        <span class="nav-title">Uygunsuzluk Yönetim Sistemi</span>
+    </a>
+    <div class="nav-links">
+        <a href="/" class="nav-link">📋 Kayıtlar</a>
+        {% if session.user and session.user.role == 'admin' %}
+        <a href="/admin" class="nav-link">⚙️ Admin</a>
+        <a href="/admin/loglar" class="nav-link">📊 Loglar</a>
+        {% endif %}
+        <a href="/yeni" class="btn-nav">+ Yeni</a>
+        {% if session.user %}
+        <span class="nav-user">{{ session.user.ad_soyad }}</span>
+        <a href="/cikis" class="nav-link" style="color:rgba(255,255,255,0.5);">Çıkış</a>
+        {% endif %}
+    </div>
+</nav>
+
+<main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}
+        <div class="flash flash-{{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+</main>
+
+<!-- BOTTOM NAV (mobile) -->
+{% if session.user %}
+<nav class="bottom-nav">
+    <div class="bottom-nav-inner">
+        <a href="/" class="bnav-item">
+            <span class="bnav-icon">📋</span>
+            <span>Kayıtlar</span>
+        </a>
+        <a href="/yeni" class="bnav-item primary">
+            <span class="bnav-icon">＋</span>
+            <span>Yeni</span>
+        </a>
+        {% if session.user.role == 'admin' %}
+        <a href="/admin" class="bnav-item">
+            <span class="bnav-icon">⚙️</span>
+            <span>Admin</span>
+        </a>
+        {% else %}
+        <a href="/cikis" class="bnav-item">
+            <span class="bnav-icon">🚪</span>
+            <span>Çıkış</span>
+        </a>
+        {% endif %}
+    </div>
+</nav>
+{% endif %}
+
+<!-- PWA INSTALL BANNER -->
+<div id="install-banner">
+    <div class="install-text">
+        <strong>📱 Uygulamayı Yükle</strong>
+        Ana ekrana ekleyerek uygulama gibi kullanın
+    </div>
+    <button class="install-btn" id="install-btn">Yükle</button>
+    <button class="install-close" id="install-close">×</button>
+</div>
+
+<script>
+// Service Worker
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/static/sw.js').catch(() => {});
+}
+
+// PWA Install
+let deferredPrompt;
+const banner = document.getElementById('install-banner');
+const installBtn = document.getElementById('install-btn');
+const closeBtn = document.getElementById('install-close');
+
+window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (!localStorage.getItem('pwa-dismissed')) {
+        setTimeout(() => banner.classList.add('show'), 2000);
+    }
+});
+
+installBtn?.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    banner.classList.remove('show');
+});
+
+closeBtn?.addEventListener('click', () => {
+    banner.classList.remove('show');
+    localStorage.setItem('pwa-dismissed', '1');
+});
+
+// Active nav item
+const path = window.location.pathname;
+document.querySelectorAll('.bnav-item').forEach(el => {
+    if (el.getAttribute('href') === path) el.classList.add('active');
+});
+</script>
+</body>
+</html>

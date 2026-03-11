@@ -1,0 +1,302 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .detail-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 24px;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+    .detail-title { font-size: 20px; font-weight: 700; }
+    .detail-id {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 13px;
+        color: var(--red);
+        font-weight: 600;
+        margin-top: 4px;
+    }
+    .detail-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .detail-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    /* RET KARTI */
+    .ret-card {
+        background: var(--surface);
+        border: 2px solid var(--text);
+        border-radius: 6px;
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+    .ret-card-header {
+        background: var(--red);
+        color: white;
+        text-align: center;
+        padding: 12px;
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: 2px;
+    }
+    .ret-card-sub {
+        background: var(--text);
+        color: white;
+        text-align: center;
+        padding: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 1px;
+    }
+    .ret-grid { padding: 0; }
+    .ret-row {
+        display: grid;
+        grid-template-columns: 220px 1fr;
+        border-bottom: 1px solid var(--border);
+    }
+    .ret-row:last-child { border-bottom: none; }
+    .ret-label {
+        background: #f8f8f8;
+        padding: 10px 14px;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text);
+        border-right: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+    }
+    .ret-value {
+        padding: 10px 14px;
+        font-size: 13px;
+        color: var(--text);
+        min-height: 38px;
+    }
+    .ret-value.large { min-height: 60px; }
+    .ret-value.empty { color: var(--text-muted); font-style: italic; }
+
+    /* GÖRSELLER */
+    .gorsel-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 10px;
+        margin-top: 12px;
+    }
+    .gorsel-item {
+        aspect-ratio: 1;
+        border-radius: 6px;
+        overflow: hidden;
+        border: 1px solid var(--border);
+        cursor: pointer;
+        transition: transform 0.15s;
+    }
+    .gorsel-item:hover { transform: scale(1.03); }
+    .gorsel-item img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* LIGHTBOX */
+    .lightbox {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.9);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+    .lightbox.active { display: flex; }
+    .lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 4px; }
+    .lightbox-close {
+        position: absolute;
+        top: 20px; right: 24px;
+        color: white;
+        font-size: 28px;
+        cursor: pointer;
+        background: none;
+        border: none;
+        line-height: 1;
+    }
+
+    /* DURUM GÜNCELLE */
+    .aksiyon-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+    .aksiyon-header {
+        background: var(--text);
+        color: white;
+        padding: 10px 18px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+    }
+    .aksiyon-body { padding: 18px; }
+
+    /* PRINT */
+    @media print {
+        nav, .detail-actions, .aksiyon-card, .gorsel-grid { display: none !important; }
+        .detail-header { margin-bottom: 12px; }
+        .ret-card { border: 2px solid #000; }
+    }
+
+    @media(max-width:600px){
+        .ret-row { grid-template-columns: 1fr; }
+        .ret-label { border-right: none; border-bottom: 1px solid var(--border); }
+    }
+</style>
+
+<div class="detail-header">
+    <div>
+        <div class="detail-title">Uygunsuzluk Detayı</div>
+        <div class="detail-id">#{{ kayit.id }}</div>
+        <div class="detail-meta">Oluşturulma: {{ kayit.olusturma_zamani }} · 
+            <span class="badge badge-{{ 'kapali' if kayit.durum == 'Kapalı' else 'acik' }}">{{ kayit.durum }}</span>
+            {% if kayit.get('kapanis_zamani') %} · Kapatıldı: {{ kayit.kapanis_zamani }}{% endif %}
+        </div>
+    </div>
+    <div class="detail-actions">
+        <a href="/" class="btn btn-secondary btn-sm">← Geri</a>
+        <button onclick="window.print()" class="btn btn-secondary btn-sm">🖨️ Yazdır</button>
+        {% if kayit.durum == 'Açık' %}
+        <button onclick="document.getElementById('aksiyon-form').scrollIntoView({behavior:'smooth'})" class="btn btn-success btn-sm">✅ Kapat</button>
+        {% endif %}
+        <form action="/sil/{{ kayit.id }}" method="POST" onsubmit="return confirm('Bu kaydı silmek istediğinizden emin misiniz?')" style="display:inline">
+            <button class="btn btn-sm" style="background:#fee2e2;color:#dc2626;">🗑️ Sil</button>
+        </form>
+    </div>
+</div>
+
+<!-- RET KARTI -->
+<div class="ret-card">
+    <div class="ret-card-header">UYGUN OLMAYAN ÜRÜN ETİKETİ</div>
+    <div class="ret-card-sub">(RET KARTI)</div>
+    <div class="ret-grid">
+        <div class="ret-row">
+            <div class="ret-label">Parça/Malzeme Adı</div>
+            <div class="ret-value {% if not kayit.parca_malzeme_adi %}empty{% endif %}">{{ kayit.parca_malzeme_adi or 'Belirtilmedi' }}</div>
+        </div>
+        <div class="ret-row">
+            <div class="ret-label">Parça/Malzeme Kodu</div>
+            <div class="ret-value {% if not kayit.parca_malzeme_kodu %}empty{% endif %}">{{ kayit.parca_malzeme_kodu or 'Belirtilmedi' }}</div>
+        </div>
+        <div class="ret-row">
+            <div class="ret-label">Uygunsuzluğun Tespit Yeri</div>
+            <div class="ret-value {% if not kayit.tespit_yeri %}empty{% endif %}">{{ kayit.tespit_yeri or 'Belirtilmedi' }}</div>
+        </div>
+        <div class="ret-row">
+            <div class="ret-label">Uygunsuzluğun Kaynağı</div>
+            <div class="ret-value {% if not kayit.uygunsuzluk_kaynagi %}empty{% endif %}">{{ kayit.uygunsuzluk_kaynagi or 'Belirtilmedi' }}</div>
+        </div>
+        <div class="ret-row">
+            <div class="ret-label">Uygunsuzluk Tanımı</div>
+            <div class="ret-value large {% if not kayit.uygunsuzluk_tanimi %}empty{% endif %}">{{ kayit.uygunsuzluk_tanimi or 'Belirtilmedi' }}</div>
+        </div>
+        <div class="ret-row">
+            <div class="ret-label">Uygunsuzluk Kök Sebebi</div>
+            <div class="ret-value {% if not kayit.kok_sebep %}empty{% endif %}">{{ kayit.kok_sebep or 'Belirtilmedi' }}</div>
+        </div>
+        <div class="ret-row">
+            <div class="ret-label">Uyg. Rapor No</div>
+            <div class="ret-value {% if not kayit.rapor_no %}empty{% endif %}">{{ kayit.rapor_no or 'Belirtilmedi' }}</div>
+        </div>
+        <div class="ret-row">
+            <div class="ret-label">Makine Adı</div>
+            <div class="ret-value {% if not kayit.makine_adi %}empty{% endif %}">{{ kayit.makine_adi or 'Belirtilmedi' }}</div>
+        </div>
+        <div class="ret-row">
+            <div class="ret-label">Makine ID / İrsaliye-Sipariş No</div>
+            <div class="ret-value {% if not kayit.makine_id %}empty{% endif %}">{{ kayit.makine_id or 'Belirtilmedi' }}</div>
+        </div>
+        <div class="ret-row">
+            <div class="ret-label">Tarih</div>
+            <div class="ret-value">{{ kayit.tarih }}</div>
+        </div>
+        <div class="ret-row">
+            <div class="ret-label">Miktar</div>
+            <div class="ret-value {% if not kayit.miktar %}empty{% endif %}">{{ kayit.miktar or 'Belirtilmedi' }}</div>
+        </div>
+        <div class="ret-row">
+            <div class="ret-label">Çözüm Önerisi (Geçici ve Kalıcı)</div>
+            <div class="ret-value large {% if not kayit.cozum_onerisi %}empty{% endif %}">{{ kayit.cozum_onerisi or 'Henüz girilmedi' }}</div>
+        </div>
+        <div class="ret-row">
+            <div class="ret-label">Alınan Acil Aksiyon (Son)</div>
+            <div class="ret-value large {% if not kayit.acil_aksiyon %}empty{% endif %}">{{ kayit.acil_aksiyon or 'Henüz girilmedi' }}</div>
+        </div>
+        {% if kayit.aciklama %}
+        <div class="ret-row">
+            <div class="ret-label">Açıklama</div>
+            <div class="ret-value large">{{ kayit.aciklama }}</div>
+        </div>
+        {% endif %}
+        <div class="ret-row">
+            <div class="ret-label">Raporlayan</div>
+            <div class="ret-value {% if not kayit.raporlayan %}empty{% endif %}">{{ kayit.raporlayan or 'Belirtilmedi' }}</div>
+        </div>
+        <div class="ret-row">
+            <div class="ret-label">Kontrol Eden</div>
+            <div class="ret-value {% if not kayit.kontrol_eden %}empty{% endif %}">{{ kayit.kontrol_eden or 'Belirtilmedi' }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- GÖRSELLER -->
+{% if kayit.gorseller %}
+<div class="card" style="margin-bottom:20px;">
+    <div class="card-header">📷 Görseller ({{ kayit.gorseller|length }} adet)</div>
+    <div class="card-body">
+        <div class="gorsel-grid">
+            {% for g in kayit.gorseller %}
+            <div class="gorsel-item" onclick="openLightbox('/static/uploads/{{ g }}')">
+                <img src="/static/uploads/{{ g }}" alt="Görsel {{ loop.index }}" loading="lazy">
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- AKSİYON -->
+{% if kayit.durum == 'Açık' %}
+<div class="aksiyon-card" id="aksiyon-form">
+    <div class="aksiyon-header">⚙️ Durum Güncelle / Kaydı Kapat</div>
+    <div class="aksiyon-body">
+        <form action="/durum_guncelle/{{ kayit.id }}" method="POST">
+            <div class="grid-2" style="margin-bottom:12px;">
+                <div class="form-group">
+                    <label class="form-label">Çözüm Önerisi (Geçici ve Kalıcı)</label>
+                    <textarea name="cozum_onerisi" class="form-control" rows="3" placeholder="Çözüm önerisi...">{{ kayit.cozum_onerisi or '' }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Alınan Acil Aksiyon</label>
+                    <textarea name="acil_aksiyon" class="form-control" rows="3" placeholder="Alınan aksiyon...">{{ kayit.acil_aksiyon or '' }}</textarea>
+                </div>
+            </div>
+            <div style="display:flex;gap:10px;">
+                <button type="submit" name="durum" value="Kapalı" class="btn btn-success">✅ Uygunsuzluğu Kapat</button>
+                <button type="submit" name="durum" value="Açık" class="btn btn-secondary">💾 Güncelle (Açık Kalsın)</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+    <button class="lightbox-close" onclick="closeLightbox()">×</button>
+    <img id="lightbox-img" src="" alt="">
+</div>
+
+<script>
+function openLightbox(src) {
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('active');
+    document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeLightbox(); });
+</script>
+{% endblock %}

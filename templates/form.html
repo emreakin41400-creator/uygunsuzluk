@@ -1,0 +1,308 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .page-header { margin-bottom: 24px; }
+    .page-title { font-size: 22px; font-weight: 700; }
+    .page-subtitle { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+    /* RET KARTI HEADER */
+    .ret-header {
+        background: var(--red);
+        color: white;
+        text-align: center;
+        padding: 14px;
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        border-radius: 6px 6px 0 0;
+    }
+    .ret-sub {
+        background: var(--text);
+        color: white;
+        text-align: center;
+        padding: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        margin-bottom: 0;
+    }
+    .form-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        overflow: hidden;
+    }
+    .form-body { padding: 24px; }
+
+    /* UPLOAD ZONE */
+    .upload-zone {
+        border: 2px dashed var(--border);
+        border-radius: 6px;
+        padding: 32px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: var(--bg);
+        position: relative;
+    }
+    .upload-zone:hover, .upload-zone.dragover {
+        border-color: var(--red);
+        background: #fff5f5;
+    }
+    .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .upload-icon { font-size: 36px; margin-bottom: 8px; }
+    .upload-text { font-size: 14px; font-weight: 600; color: var(--text); }
+    .upload-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+    .preview-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 8px;
+        margin-top: 12px;
+    }
+    .preview-item {
+        position: relative;
+        aspect-ratio: 1;
+        border-radius: 4px;
+        overflow: hidden;
+        border: 1px solid var(--border);
+    }
+    .preview-item img { width: 100%; height: 100%; object-fit: cover; }
+    .preview-remove {
+        position: absolute;
+        top: 4px; right: 4px;
+        background: rgba(0,0,0,0.7);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 20px; height: 20px;
+        font-size: 12px;
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+    }
+
+    .form-footer {
+        border-top: 1px solid var(--border);
+        padding: 16px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: var(--bg);
+    }
+    .required-note { font-size: 11px; color: var(--text-muted); }
+
+    .note-box {
+        background: #fff8e1;
+        border-left: 4px solid #f59e0b;
+        padding: 10px 14px;
+        border-radius: 0 4px 4px 0;
+        font-size: 12px;
+        color: #92400e;
+        margin-top: 20px;
+    }
+</style>
+
+<div class="page-header">
+    <div class="page-title">Yeni Uygunsuzluk Kaydı</div>
+    <div class="page-subtitle">Aşağıdaki formu doldurun ve görselleri ekleyin.</div>
+</div>
+
+<form action="/kaydet" method="POST" enctype="multipart/form-data">
+<div class="form-card">
+    <div class="ret-header">Uygun Olmayan Ürün Etiketi</div>
+    <div class="ret-sub">(RET KARTI)</div>
+    <div class="form-body">
+
+        <div class="section-title">📦 Parça / Malzeme Bilgileri</div>
+        <div class="grid-2">
+            <div class="form-group">
+                <label class="form-label">Parça / Malzeme Adı</label>
+                <input type="text" name="parca_malzeme_adi" class="form-control" placeholder="Örn: Giriş Konveyör Şasesi">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Parça / Malzeme Kodu</label>
+                <input type="text" name="parca_malzeme_kodu" class="form-control" placeholder="Örn: 6716-5540">
+            </div>
+        </div>
+
+        <div class="section-title">📍 Uygunsuzluk Bilgileri</div>
+        <div class="grid-2">
+            <div class="form-group">
+                <label class="form-label">Uygunsuzluğun Tespit Yeri</label>
+                <select name="tespit_yeri" class="form-control">
+                    <option value="">Seçiniz...</option>
+                    <option>M. Otomasyon</option>
+                    <option>Kalite</option>
+                    <option>İnsan Kaynakları</option>
+                    <option>Talaşsız İmalat</option>
+                    <option>Talaşlı İmalat</option>
+                    <option>Depo</option>
+                    <option>Sevkiyat</option>
+                    <option>Satın Alma</option>
+                    <option>Diğer</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Uygunsuzluğun Kaynağı</label>
+                <select name="uygunsuzluk_kaynagi" class="form-control">
+                    <option value="">Seçiniz...</option>
+                    <option>Talaşsız İmalat</option>
+                    <option>Talaşlı İmalat</option>
+                    <option>Depo Sevkiyat</option>
+                    <option>Tedarikçi</option>
+                    <option>Kalite</option>
+                    <option>Depo</option>
+                    <option>Süreç Hatası</option>
+                    <option>Diğer</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Uygunsuzluk Tanımı</label>
+            <textarea name="uygunsuzluk_tanimi" class="form-control" rows="3" placeholder="Uygunsuzluğu detaylı olarak açıklayın..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Uygunsuzluk Kök Sebebi</label>
+            <input type="text" name="kok_sebep" class="form-control" placeholder="Örn: Süreç Hatası, Tedarikçi Kaynaklı...">
+        </div>
+
+        <div class="section-title">🔧 Makine / Rapor Bilgileri</div>
+        <div class="grid-3">
+            <div class="form-group">
+                <label class="form-label">Uyg. Rapor No</label>
+                <input type="text" name="rapor_no" class="form-control" placeholder="Örn: MO-090326-04">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Makine Adı</label>
+                <input type="text" name="makine_adi" class="form-control" placeholder="Örn: FZM 1,5">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Makine ID / İrsaliye-Sipariş No</label>
+                <input type="text" name="makine_id" class="form-control" placeholder="Örn: 1879">
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="form-group">
+                <label class="form-label">Tarih</label>
+                <input type="text" name="tarih" class="form-control" 
+                    value="{{ '' }}" 
+                    id="tarih-input"
+                    placeholder="GG.AA.YYYY">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Miktar</label>
+                <input type="text" name="miktar" class="form-control" placeholder="Örn: 1">
+            </div>
+        </div>
+
+        <div class="section-title">🛠️ Çözüm Bilgileri</div>
+        <div class="form-group">
+            <label class="form-label">Çözüm Önerisi (Geçici ve Kalıcı)</label>
+            <textarea name="cozum_onerisi" class="form-control" rows="2" placeholder="Geçici ve kalıcı çözüm önerisi..."></textarea>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Alınan Acil Aksiyon (Son)</label>
+            <textarea name="acil_aksiyon" class="form-control" rows="2" placeholder="Alınan acil aksiyon..."></textarea>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Açıklama</label>
+            <textarea name="aciklama" class="form-control" rows="2" placeholder="Ek açıklama..."></textarea>
+        </div>
+
+        <div class="section-title">👤 Personel Bilgileri</div>
+        <div class="grid-2">
+            <div class="form-group">
+                <label class="form-label">Raporlayan</label>
+                <input type="text" name="raporlayan" class="form-control" placeholder="Ad Soyad">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Kontrol Eden</label>
+                <input type="text" name="kontrol_eden" class="form-control" placeholder="Ad Soyad">
+            </div>
+        </div>
+
+        <div class="section-title">📷 Görseller</div>
+        <div class="upload-zone" id="upload-zone">
+            <input type="file" name="gorseller" id="gorsel-input" multiple accept="image/*">
+            <div class="upload-icon">📷</div>
+            <div class="upload-text">Fotoğraf eklemek için tıklayın veya sürükleyip bırakın</div>
+            <div class="upload-sub">PNG, JPG, JPEG, WEBP · Maksimum 16 MB</div>
+        </div>
+        <div class="preview-grid" id="preview-grid"></div>
+
+        <div class="note-box">
+            ⚠️ <strong>NOT:</strong> Uygunsuzluklar aynı gün içinde kapatılmalıdır. Uygunsuzluğun kaynağı bölüm tarafından, kanıt doküman ve uygunsuzluğu yapan personel bilgisini iletmelidir.
+        </div>
+
+    </div>
+    <div class="form-footer">
+        <a href="/" class="btn btn-secondary">← Geri Dön</a>
+        <button type="submit" class="btn btn-primary">💾 Kaydet ve Oluştur</button>
+    </div>
+</div>
+</form>
+
+<script>
+// Otomatik tarih
+const today = new Date();
+const day = String(today.getDate()).padStart(2,'0');
+const month = String(today.getMonth()+1).padStart(2,'0');
+const year = today.getFullYear();
+document.getElementById('tarih-input').value = `${day}.${month}.${year}`;
+
+// Görsel önizleme
+const input = document.getElementById('gorsel-input');
+const previewGrid = document.getElementById('preview-grid');
+const zone = document.getElementById('upload-zone');
+let files = [];
+
+input.addEventListener('change', (e) => {
+    addFiles(e.target.files);
+});
+
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('dragover');
+    addFiles(e.dataTransfer.files);
+});
+
+function addFiles(newFiles) {
+    Array.from(newFiles).forEach(f => {
+        if (f.type.startsWith('image/')) files.push(f);
+    });
+    renderPreviews();
+    updateInput();
+}
+
+function renderPreviews() {
+    previewGrid.innerHTML = '';
+    files.forEach((f, i) => {
+        const reader = new FileReader();
+        reader.onload = e => {
+            const div = document.createElement('div');
+            div.className = 'preview-item';
+            div.innerHTML = `<img src="${e.target.result}"><button type="button" class="preview-remove" onclick="removeFile(${i})">×</button>`;
+            previewGrid.appendChild(div);
+        };
+        reader.readAsDataURL(f);
+    });
+}
+
+function removeFile(i) {
+    files.splice(i, 1);
+    renderPreviews();
+    updateInput();
+}
+
+function updateInput() {
+    const dt = new DataTransfer();
+    files.forEach(f => dt.items.add(f));
+    input.files = dt.files;
+}
+</script>
+{% endblock %}

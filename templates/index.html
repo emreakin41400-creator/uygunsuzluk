@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+    .page-title { font-size: 20px; font-weight: 700; }
+    .page-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+    /* STATS */
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+    .stat-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 14px 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .stat-icon { font-size: 24px; flex-shrink: 0; }
+    .stat-num { font-size: 24px; font-weight: 700; line-height: 1; font-family: 'IBM Plex Mono', monospace; }
+    .stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); font-weight: 600; margin-top: 2px; }
+    .stat-card.red { border-left: 4px solid var(--red); }
+    .stat-card.orange { border-left: 4px solid var(--orange); }
+    .stat-card.green { border-left: 4px solid var(--green); }
+
+    /* FILTERS */
+    .filters { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+    .filter-input {
+        padding: 8px 12px;
+        border: 1.5px solid var(--border);
+        border-radius: 6px;
+        font-family: inherit;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.15s;
+        -webkit-appearance: none;
+        background: white;
+    }
+    .filter-input:focus { border-color: var(--red); }
+    #arama { flex: 1; min-width: 160px; }
+
+    /* DESKTOP TABLE */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th {
+        background: var(--text);
+        color: rgba(255,255,255,0.8);
+        padding: 10px 12px;
+        text-align: left;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        white-space: nowrap;
+    }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:hover td { background: #fafaf8; }
+    tr:last-child td { border-bottom: none; }
+    .kayit-id { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--red); font-weight: 600; }
+
+    /* MOBILE CARD LIST */
+    .mobile-list { display: none; }
+    .kayit-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 14px;
+        margin-bottom: 10px;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        transition: box-shadow 0.15s;
+        border-left: 4px solid var(--border);
+    }
+    .kayit-card:active { box-shadow: 0 2px 12px rgba(0,0,0,0.1); }
+    .kayit-card.acik { border-left-color: var(--orange); }
+    .kayit-card.kapali { border-left-color: var(--green); }
+    .kc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .kc-id { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--red); font-weight: 600; }
+    .kc-tarih { font-size: 11px; color: var(--text-muted); }
+    .kc-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+    .kc-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+    .kc-footer { display: flex; align-items: center; justify-content: space-between; }
+    .kc-meta { font-size: 11px; color: var(--text-muted); }
+
+    .no-data { text-align: center; padding: 48px 20px; color: var(--text-muted); }
+    .no-data-icon { font-size: 48px; margin-bottom: 12px; }
+
+    @media (max-width: 640px) {
+        .stat-icon { font-size: 20px; }
+        .stat-num { font-size: 20px; }
+        .desktop-table { display: none; }
+        .mobile-list { display: block; }
+        .page-header .btn { display: none; } /* hidden, use bottom nav */
+    }
+    @media (max-width: 380px) {
+        .stats { grid-template-columns: 1fr 1fr 1fr; }
+        .stat-card { padding: 10px 8px; gap: 6px; }
+        .stat-icon { display: none; }
+    }
+</style>
+
+<div class="page-header">
+    <div>
+        <div class="page-title">Uygunsuzluk Kayıtları</div>
+        <div class="page-subtitle">Tüm raporları buradan takip edin</div>
+    </div>
+    <a href="/yeni" class="btn btn-primary hide-mobile">+ Yeni Uygunsuzluk Aç</a>
+</div>
+
+<div class="stats">
+    <div class="stat-card red">
+        <div class="stat-icon">📋</div>
+        <div><div class="stat-num">{{ toplam }}</div><div class="stat-label">Toplam</div></div>
+    </div>
+    <div class="stat-card orange">
+        <div class="stat-icon">⚠️</div>
+        <div><div class="stat-num">{{ acik }}</div><div class="stat-label">Açık</div></div>
+    </div>
+    <div class="stat-card green">
+        <div class="stat-icon">✅</div>
+        <div><div class="stat-num">{{ kapali }}</div><div class="stat-label">Kapalı</div></div>
+    </div>
+</div>
+
+<div class="filters">
+    <input type="text" id="arama" class="filter-input" placeholder="🔍 Ara...">
+    <select id="durum-filtre" class="filter-input" style="width:130px;">
+        <option value="">Tüm Durumlar</option>
+        <option value="Açık">Açık</option>
+        <option value="Kapalı">Kapalı</option>
+    </select>
+</div>
+
+{% if kayitlar %}
+
+<!-- DESKTOP TABLE -->
+<div class="card desktop-table">
+    <div class="table-wrap">
+        <table id="kayit-tablosu">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tarih</th>
+                    <th>Parça / Malzeme</th>
+                    <th>Kaynak</th>
+                    <th>Uygunsuzluk</th>
+                    <th>Raporlayan</th>
+                    <th>Durum</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for kayit in kayitlar|reverse %}
+                <tr data-durum="{{ kayit.durum }}" data-text="{{ (kayit.parca_malzeme_adi ~ ' ' ~ kayit.rapor_no ~ ' ' ~ kayit.raporlayan ~ ' ' ~ kayit.uygunsuzluk_tanimi)|lower }}">
+                    <td><div class="kayit-id">{{ kayit.id }}</div></td>
+                    <td style="white-space:nowrap;font-size:12px;">{{ kayit.tarih }}</td>
+                    <td>
+                        <div style="font-weight:600;">{{ kayit.parca_malzeme_adi or '—' }}</div>
+                        {% if kayit.parca_malzeme_kodu %}<div style="font-size:11px;color:var(--text-muted);">{{ kayit.parca_malzeme_kodu }}</div>{% endif %}
+                    </td>
+                    <td style="font-size:12px;">{{ kayit.uygunsuzluk_kaynagi or '—' }}</td>
+                    <td style="max-width:180px;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ kayit.uygunsuzluk_tanimi or '—' }}</td>
+                    <td style="font-size:12px;">{{ kayit.raporlayan or '—' }}</td>
+                    <td><span class="badge badge-{{ 'kapali' if kayit.durum == 'Kapalı' else 'acik' }}">{{ kayit.durum }}</span></td>
+                    <td><a href="/detay/{{ kayit.id }}" class="btn btn-secondary btn-sm">Görüntüle</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- MOBILE CARD LIST -->
+<div class="mobile-list" id="mobile-list">
+    {% for kayit in kayitlar|reverse %}
+    <a href="/detay/{{ kayit.id }}" class="kayit-card {{ 'kapali' if kayit.durum == 'Kapalı' else 'acik' }}"
+       data-durum="{{ kayit.durum }}"
+       data-text="{{ (kayit.parca_malzeme_adi ~ ' ' ~ kayit.rapor_no ~ ' ' ~ kayit.raporlayan ~ ' ' ~ kayit.uygunsuzluk_tanimi)|lower }}">
+        <div class="kc-header">
+            <span class="kc-id">#{{ kayit.id }}</span>
+            <span class="kc-tarih">{{ kayit.tarih }}</span>
+        </div>
+        <div class="kc-title">{{ kayit.parca_malzeme_adi or 'Parça belirtilmedi' }}</div>
+        <div class="kc-sub">{{ kayit.uygunsuzluk_tanimi[:80] ~ '...' if kayit.uygunsuzluk_tanimi|length > 80 else kayit.uygunsuzluk_tanimi or 'Tanım yok' }}</div>
+        <div class="kc-footer">
+            <span class="kc-meta">{{ kayit.uygunsuzluk_kaynagi or '' }}{% if kayit.raporlayan %} · {{ kayit.raporlayan }}{% endif %}</span>
+            <span class="badge badge-{{ 'kapali' if kayit.durum == 'Kapalı' else 'acik' }}">{{ kayit.durum }}</span>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+
+{% else %}
+<div class="no-data">
+    <div class="no-data-icon">📭</div>
+    <div style="font-weight:600;font-size:15px;margin-bottom:6px;">Henüz kayıt yok</div>
+    <div style="font-size:13px;margin-bottom:16px;">İlk uygunsuzluğu açmak için butona tıklayın.</div>
+    <a href="/yeni" class="btn btn-primary">+ Yeni Uygunsuzluk Aç</a>
+</div>
+{% endif %}
+
+<script>
+const arama = document.getElementById('arama');
+const durumFiltre = document.getElementById('durum-filtre');
+
+function filtrele() {
+    const q = arama.value.toLowerCase();
+    const durum = durumFiltre.value;
+    // Desktop
+    document.querySelectorAll('#kayit-tablosu tbody tr').forEach(tr => {
+        const match = (!q || tr.dataset.text.includes(q)) && (!durum || tr.dataset.durum === durum);
+        tr.style.display = match ? '' : 'none';
+    });
+    // Mobile
+    document.querySelectorAll('#mobile-list .kayit-card').forEach(card => {
+        const match = (!q || card.dataset.text.includes(q)) && (!durum || card.dataset.durum === durum);
+        card.style.display = match ? '' : 'none';
+    });
+}
+arama?.addEventListener('input', filtrele);
+durumFiltre?.addEventListener('change', filtrele);
+</script>
+{% endblock %}

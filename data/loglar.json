@@ -1,0 +1,122 @@
+[
+  {
+    "id": "15c36e22",
+    "zaman": "11.03.2026 14:59:59",
+    "kullanici_adi": "Sistem Yöneticisi",
+    "username": "admin",
+    "rol": "admin",
+    "ip": "78.189.107.26",
+    "islem": "👁️ Kayıt Görüntülendi",
+    "detay": "Kayıt #AD78A0F3 — Eoslso",
+    "durum": "✅",
+    "sayfa": "/detay/AD78A0F3"
+  },
+  {
+    "id": "a6743c7d",
+    "zaman": "11.03.2026 15:06:20",
+    "kullanici_adi": "Sistem Yöneticisi",
+    "username": "admin",
+    "rol": "admin",
+    "ip": "78.189.107.26",
+    "islem": "⚙️ Admin Panel",
+    "detay": "Admin paneli açıldı",
+    "durum": "✅",
+    "sayfa": "/admin"
+  },
+  {
+    "id": "5152c79b",
+    "zaman": "11.03.2026 15:06:27",
+    "kullanici_adi": "Sistem Yöneticisi",
+    "username": "admin",
+    "rol": "admin",
+    "ip": "78.189.107.26",
+    "islem": "⚙️ Admin Panel",
+    "detay": "Admin paneli açıldı",
+    "durum": "✅",
+    "sayfa": "/admin"
+  },
+  {
+    "id": "40d2af30",
+    "zaman": "11.03.2026 15:06:34",
+    "kullanici_adi": "Sistem Yöneticisi",
+    "username": "admin",
+    "rol": "admin",
+    "ip": "78.189.107.26",
+    "islem": "🚪 Çıkış",
+    "detay": "Sistem Yöneticisi çıkış yaptı",
+    "durum": "✅",
+    "sayfa": "/cikis"
+  },
+  {
+    "id": "285114b9",
+    "zaman": "11.03.2026 15:06:38",
+    "kullanici_adi": "Deneme",
+    "username": "Deneme",
+    "rol": "user",
+    "ip": "78.189.107.26",
+    "islem": "🔑 Giriş",
+    "detay": "Deneme sisteme giriş yaptı",
+    "durum": "✅",
+    "sayfa": "/giris"
+  },
+  {
+    "id": "3ccc64f9",
+    "zaman": "11.03.2026 15:07:31",
+    "kullanici_adi": "Deneme",
+    "username": "Deneme",
+    "rol": "user",
+    "ip": "78.189.107.26",
+    "islem": "🚪 Çıkış",
+    "detay": "Deneme çıkış yaptı",
+    "durum": "✅",
+    "sayfa": "/cikis"
+  },
+  {
+    "id": "a237b03f",
+    "zaman": "11.03.2026 15:07:37",
+    "kullanici_adi": "Sistem Yöneticisi",
+    "username": "admin",
+    "rol": "admin",
+    "ip": "78.189.107.26",
+    "islem": "🔑 Giriş",
+    "detay": "Sistem Yöneticisi sisteme giriş yaptı",
+    "durum": "✅",
+    "sayfa": "/giris"
+  },
+  {
+    "id": "2f1a3d49",
+    "zaman": "11.03.2026 15:08:32",
+    "kullanici_adi": "Sistem Yöneticisi",
+    "username": "admin",
+    "rol": "admin",
+    "ip": "78.189.107.26",
+    "islem": "🚪 Çıkış",
+    "detay": "Sistem Yöneticisi çıkış yaptı",
+    "durum": "✅",
+    "sayfa": "/cikis"
+  },
+  {
+    "id": "89278e12",
+    "zaman": "11.03.2026 15:08:36",
+    "kullanici_adi": "admin",
+    "username": "admin",
+    "rol": "—",
+    "ip": "78.189.107.26",
+    "islem": "🔑 Başarısız Giriş",
+    "detay": "Kullanıcı adı: admin",
+    "durum": "❌",
+    "sayfa": "/giris"
+  },
+  {
+    "id": "6b105a92",
+    "zaman": "11.03.2026 15:08:40",
+    "kullanici_adi": "Sistem Yöneticisi",
+    "username": "admin",
+    "rol": "admin",
+    "ip": "78.189.107.26",
+    "islem": "🔑 Giriş",
+    "detay": "Sistem Yöneticisi sisteme giriş yaptı",
+    "durum": "✅",
+    "sayfa": "/giris"
+  }
+]
